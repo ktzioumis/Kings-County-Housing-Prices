@@ -1,144 +1,154 @@
+# Kings County Housing Prices - Analysis and Modeling
 
-# Module 1 Final Project
+Full Jupyter Notebook: 
 
+<img src='osemn.jpg'>
 
-## Introduction
+For this project I will be following the OSEMN methodology above:
 
-In this lesson, we'll review all of the guidelines and specifications for the final project for Module 1. 
+Obtain: data is provided in the form of 'kc_house_data.csv'. This is loaded directly into a Pandas DataFrame
 
-## Objectives
-You will be able to:
-* Describe all required aspects of the final project for Module 1
-* Describe all required deliverables
-* Describe what constitutes a successful project
-* Describe what the experience of the project review should be like
+Scrub: data is checked for missing values and placeholders and outliers
 
-## Final Project Summary
+Explore: Exploratory Data Analysis is performed through summary statistics and visually through graphs generated directly from data
 
-You've made it all the way through the first module of this course - take a minute to celebrate your awesomeness! 
+Model: Linear Regression model is generated using Ordinary Least Squares method on training split of data set, checked against the test split for variation in Mean Squared Error and verified by 10 fold cross validation 
 
-<img src='awesome.gif'>
+iNterpret: Conclusions are drawn from the visualizations and from model
 
-All that remains in Module 1 is to put our newfound data science skills to use with a final project! You should expect this project to take between 40 and 50 hours of solid, focused effort. If you're done way quicker, go back and dig in deeper or try some of the optional "level up" suggestions. If you're worried that you're going to get to 30 hrs and still not even have the data imported, reach out to an instructor in slack ASAP to get some help!
+## Column Names and descriptions for Kings County Data Set
+* **id** - unique identified for a house
+* **dateDate** - house was sold
+* **pricePrice** -  is prediction target
+* **bedroomsNumber** -  of Bedrooms/House
+* **bathroomsNumber** -  of bathrooms/bedrooms
+* **sqft_livingsquare** -  footage of the home
+* **sqft_lotsquare** -  footage of the lot
+* **floorsTotal** -  floors (levels) in house
+* **waterfront** - House which has a view to a waterfront
+* **view** - Has been viewed
+* **condition** - How good the condition is ( Overall )
+* **grade** - overall grade given to the housing unit, based on King County grading system
+* **sqft_above** - square footage of house apart from basement
+* **sqft_basement** - square footage of the basement
+* **yr_built** - Built Year
+* **yr_renovated** - Year when house was renovated
+* **zipcode** - zip
+* **lat** - Latitude coordinate
+* **long** - Longitude coordinate
+* **sqft_living15** - The square footage of interior housing living space for the nearest 15 neighbors
+* **sqft_lot15** - The square footage of the land lots of the nearest 15 neighbors
 
-## The Dataset
+## Scrub
 
-For this project, you'll be working with the King County House Sales dataset. We've modified the dataset to make it a bit more fun and challenging.  The dataset can be found in the file `"kc_house_data.csv"`, in this repo. 
+**waterfront** - Categorical feature representing whether or not the house is on the waterfront. Very few houses are 1.0. 
+Waterfront locations appear to be quite rare, I don't think it is unreasonable to set the missing values to 0 and the data type changed to 'category'
 
-The description of the column names can be found in the column_names.md file in this repository. As with most real world data sets, the coliumn names are not perfectly described, so you'll have to do some research or use your best judgement if you have questions relating to what the data means.
+**renovation** - A lot of 0's in the data, these could also be considered missing data as the house cannot have been renovated in the year 0. 0 is a placeholder. Most likely indicating the house has not been renovated since building
 
-You'll clean, explore, and model this dataset with a multivariate linear regression to predict the sale price of houses as accurately as possible. 
+**view** - The feature describes the number of times a house has been viewed. There is a 0.0 value that represents the house has not been viewed while it may be the case that the missing data represents house that have not been viewed since there are relatively few pieces of missing data it would be safer to drop these rows than make assumptions that may bias our data set
 
-## The Deliverables
+**sqft_basement** - '?' appears to have been used as placeholder for missing data. There are also a lot of 0's in this data, presumably from houses without basements. From our column descriptions the sqft_basement is the difference between the sqft_living and sqft_above. Replaced with difference between sqft_living and sqft_above. 
 
-There will be three deliverables for this project:
+## Explore
 
-1. **A well documented Jupyter Notebook** containing any code you've written for this project and comments explaining it.  
-2. A short **Keynote/PowerPoint/Google Slides presentation** (delivered as a PDF export) giving a high-level overview of your methodology and recommendations for non-technical stakeholders.
-3. **A blog post** (800-1500 words) about one element of the project - it could be the EDA, the feature selection, the choice of visualizations or anything else technical relating to the project. It should be targeted at your peers - aspiring data scientists.
+<img src = 'images/hists.PNG'>
 
-## The Process
+### House features related to price
+                              
+<img src = 'images/yr_ren_hists.PNG'>
 
-### 1. Getting Started
+<img src = 'images/price_grade_box.PNG'>
 
-Please start by reviewing this document. If you have any questions, please ask them in slack ASAP so (a) we can answer the questions and (b) so we can update this repository to make it clearer.
+<img src = 'images/price_cond_box.PNG'>
 
-Once you're done with the first 12 sections, please start on the project. Do that by forking this repository, cloning it locally, and working in the student.ipynb file. Make sure to also add and commit a pdf of your presentation to the repository with a file name of `presentation.pdf`.
+<img src = 'images/price_bath_box.PNG'>
 
-### 2. The Project Review
+Condition of the house matters when it falls below a rank of 3. Efforts to improve the overall condition of the house are worthwhile to raise the condition to 3 but moving beyond a 3 provides little or no added benefit to sale price.
+Grade, however, appears to affect sale price at a continuous rate.
+Renovating to improve fixtures and architectural detail will continue to improve sale price.
+Adding a bathroom is contentious, between 1.5 and 4.25 bathrooms there appears to be a direct positive correlation but past 4.25 bathrooms the effects are less predictable
 
-> **When you start on the project, please also reach out to an instructor immediately to schedule your project review** (if you're not sure who to schedule with, please ask in slack!)
+**Conclusion:** if the house's condition is below a 3 renovate to improve to a 3 past that the renovation budget should focus on improving the house's grade
 
-#### What to expect from the Project Review
+### Location, Location, Location
 
-Project reviews are focused on preparing you for technical interviews. Treat project reviews as if they were technical interviews, in both attitude and technical presentation *(sometimes technical interviews will feel arbitrary or unfair - if you want to get the job, commentiing on that is seldom a good choice)*.
+<img src = 'zipcode_clusters.PNG'>
 
-The project review is comprised of a 45 minute 1:1 session with one of the instructors. During your project review, be prepared to:
+A pretty identifiable north/south style divide long the line latitude=47.54
+This can be used for our regression model by binning the data by latitude into 'north' and 'south' categories in a feature called 'north'. Expensive (north) will be designated True 
 
-#### 1. Deliver your PDF presentation to a non-technical stakeholder. 
-In this phase of the review (~10 mins) your instructor will play the part of a non-technical stakeholder that you are presenting your findings to. The presentation should not exceed 5 minutes, giving the "stakeholder" 5 minutes to ask questions.
+As expected the 'north' split give very distinct numerical descriptions, the mean and median of the more expensive north=1 set are almost double that of the inexpensive north. Although these data sets do overlap, the 75th percentile value of south is below the 25th percentile of the north
 
-In the first half of the presentation (2-3 mins), you should summarize your methodology in a way that will be comprehensible to someone with no background in data science and that will increase their confidence in you and your findings. In the second half (the remaining 2-3 mins) you should summarize your findings and be ready to answer a couple of non-technical questions from the audience. The questions might relate to technical topics (sampling bias, confidence, etc) but will be asked in a non-technical way and need to be answered in a way that does not assume a background in statistics or machine learning. You can assume a smart, business stakeholder, with a non-quantitative college degree.
+### Keeping up with the Joneses
 
-#### 2. Go through the Jupyter Notebook, answering questions about how you made certain decisions. Be ready to explain things like:
-    * "how did you pick the question(s) that you did?"
-    * "why are these questions important from a business perspective?"
-    * "how did you decide on the data cleaning options you performed?"
-    * "why did you choose a given method or library?"
-    * "why did you select those visualizations and what did you learn from each of them?"
-    * "why did you pick those features as predictors?"
-    * "how would you interpret the results?"
-    * "how confident are you in the predictive quality of the results?"
-    * "what are some of the things that could cause the results to be wrong?"
+We can't help but compare ourselves to others, especially those nearest to us. This dataset doesn't just provide data about the house itself it also provides interesting information about the houses nearby.
+I would expect a house to gain value by being bigger than its neighbors, but does the data show this to be true?
+Taking the difference between sqft_living and sqft_living15 determines whether the house in question is bigger or smaller than those around it
 
-Think of the first phase of the review (~30 mins) as a technical boss reviewing your work and asking questions about it before green-lighting you to present to the business team. You should practice using the appropriate technical vocabulary to explain yourself. Don't be surprised if the instructor jumps around or sometimes cuts you off - there is a lot of ground to cover, so that may happen.
+<img src ='scatter_jones.png'>
 
-If any requirements are missing or if significant gaps in understanding are uncovered, be prepared to do one or all of the following:
-* Perform additional data cleanup, visualization, feature selection, modeling and/or model validation
-* Submit an improved version
-* Meet again for another Project Review
+The data above paints an unexpected picture. 
 
-What won't happen:
-* You won't be yelled at, belittled, or scolded
-* You won't be put on the spot without support
-* There's nothing you can do to instantly fail or blow it
+Amongst the smallest houses, the houses are almost exclusively smaller than their neighbors and amongst the biggest houses the the houses are almost exclusively bigger than their neighbors. this gives little bases for comparison of similar houses with different neighbor house sizes (varying sqft_living15 where sqft_living is constant).
 
-**Please note: We need to receive the URL of your repository at least 24 hours before and please have the project finished at least 3 hours before your review so we can look at your materials in advance.** 
+In the central segment,however, we see a real mix of houses being bigger and smaller than their neighbours for that house size. Surprisingly, what we see are bands at the top and bottom of the price range where the cheaper houses in that size range tend to be bigger than their neighbors and the more expensive house in that size range tend to be smaller than their neighbors! The opposite of my initial assumption!
 
+## Model
 
-## Requirements
+<img src = 'heatmap2.png'>
 
-This section outlines the rubric we'll use to evaluate your project.
+The above heatmap makes them really stand out, the 5 linear features are 'bathrooms', 'sqft_living','grade', 'sqft_above','sqft_living15', we also want to include our categorical features from earlier, 'yr_renovated' and 'north'
+Modelling assumes normality of features, earlier we had created log transformations on 'price', 'sqft_living', 'sqft_above' and 'sqft_living15', lets bring those transformed versions into our features dataset and perform min-max scaling to have all features normal and between -1 and 1
 
-### 1. Technical Report Must-Haves
+Data is split into training and test sets using scikit-learn
 
-For this project, your Jupyter Notebook should meet the following specifications:
+<img src = 'ols1.PNG'>
 
-#### Organization/Code Cleanliness
+drop bathrooms from features list as p value is above 0.05 and one categorical column from yr_renovated to avoid dummy variable trap
 
-* The notebook should be well organized, easy to follow,  and code should be commented where appropriate.  
-    * Level Up: The notebook contains well-formatted, professional looking markdown cells explaining any substantial code.  All functions have docstrings that act as professional-quality documentation
-* The notebook is written for a technical audiences with a way to both understand your approach and reproduce your results. The target audience for this deliverable is other data scientists looking to validate your findings. 
+<img src = 'ols2.PNG'>
 
-#### Visualizations & EDA
+## Interpret
 
-* Your project contains at least 4 _meaningful_ data visualizations, with corresponding interpretations. All visualizations are well labeled with axes labels, a title, and a legend (when appropriate)  
-* You pose at least 3 meaningful questions and aswer them through EDA.  These questions should be well labled and easy to identify inside the notebook. 
-    * **Level Up**: Each question is clearly answered with a visualization that makes the answer easy to understand.   
-* Your notebook should contain 1 - 2 paragraphs briefly explaining your approach to this project **through the OSEMN framework**. 
-    
-#### Model Quality/Approach
+train MSE: 0.07370008340349138 <br>
+test MSE: 0.07417067297395503
 
-* Your model should not include any predictors with p-values greater than .05.  
-* Your notebook shows an iterative approach to modeling, and details the parameters and results of the model at each iteration.  
-    * **Level Up**: Whenever necessary, you briefly explain the changes made from one iteration to the next, and why you made these choices.  
-* You provide at least 1 paragraph explaining your final model.   
-* You pick at least 3 coefficients from your final model and explain their impact on the price of a house in this dataset.   
+10 Fold Cross-Validation
 
+array([-0.07750059, -0.07712413, -0.0760075 , -0.07618568, -0.07070151,
+       -0.07337055, -0.07442706, -0.07691479, -0.07601075, -0.0616301 ])
 
-### 2. Non-Technical Presentation Must-Haves
+So we have a model!<br>
+R-Squared is 0.733 meaning 73.3% of variation  of the response data and its mean using the features grade, sqft_living, sqft_above, sqft_living15, north and yr_renovated. The features used in the is model were selected by EDA and consistency holds across 10 fold cross validation
 
-The second deliverable should be a Keynote, PowerPoint or Google Slides presentation delivered as a pdf file in your fork of this repository with the file name of `presentation.pdf` detailing the results of your project.  Your target audience is non-technical people interested in using your findings to maximize their profit when selling their home. 
+## Recap
 
-Your presentation should:
+1. Data loaded into pandas dataframe
+2. Data scrubbed for missing values
+3. Removed outlier
+4. Generated summary statistics and feature histograms
+5. Convert yr_renovated to categorical category 
+6. EDA to investigate grade, condition and bathrooms
+7. EDA to investigate location effects zipcode, lat, long. determine lat 'north' classification feature
+8. Take log of price to push to normal distribution
+9. Take log of sqft_x features to push to normal where possible
+10. Develop, investigate 'jones' feature
+11. Check for covariance in heatmap and binary heatmap 
+12. Take top 5 linear features using 0.5 corellation with price as cutoff and categorical features to develop regression model
+13. min/max scaling on linear features to 
+14. one-hot encoding of categorical feature yr_renovated
+15. Train/test split
+15. OLS regression model.
+16. Drop bathrooms from model due to p-value > 0.05
+17. Run OLS regression model again
+18. Verify model against test data
+19. 10 fold cross validation
 
-* Contain between 5 - 10 professional-quality slides.  
-    * **Level Up**: The slides should use visualizations whenever possible, and avoid walls of text. 
-* Take no more than 5 minutes to present.   
-* Avoid technical jargon and explain the results in a clear, actionable way for non-technical audiences.   
+## Future Work
 
-**_Your presentation should contain at least 2 concrete recommendations for how to improve the selling price of a home._**
+This model does not make use of the 'date' feature. Future work could involve Exploratory data analysis into whether prices are trending up or down year over year or if the house prices tend to peak or valley during a particular time of year.
 
-### 3. Blog Post
+Deeper investigation into location data is merited. This report makes a north/south divide but future work could more deeply dive into zipcodes as a method of classification
 
-Please also write a blog post about one element of the project - it could be the EDA, the feature selection, the choice of visualizations or anything else technical relating to the project. It should be between 800-1500 words and should be targeted at your peers - aspiring data scientists.
-
-
-## Summary
-
-The end of module projects and project reviews are a critical part of the program. They give you a chance to both bring together all the skills you've learned into realistic projects and to practice key "business judgement" and communication skills that you otherwise might not get as much practice with.
-
-The projects are serious and important. They are not graded, but they can be passed and they can be failed. Take the project seriously, put the time in, ask for help from your peers or instructors early and often if you need it, and treat the review as a job interview and you'll do great. We're rooting for you to succeed and we're only going to ask you to take a review again if we believe that you need to. We'll also provide open and honest feedback so you can improve as quickly and efficiently as possible.
-
-Finally, this is your first project. We don't expect you to remember all of the terms or to get all of the answers right. If in doubt, be honest. If you don't know something, say so. If you can't remember it, just say so. It's very unusual for someone to complete a project review without being asked a question they're unsure of, we know you might be nervous which may affect your performance. Just be as honest, precise and focused as you can be, and you'll do great!
-
+Investigate internal house ratios. Covariance amongst internal house features such as sqft_living and bedrooms or bathrooms and sqft_above may yield interesting results and trends
