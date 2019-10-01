@@ -1,6 +1,6 @@
 # Kings County Housing Prices - Analysis and Modeling
 
-Full Jupyter Notebook: 
+Full Jupyter Notebook: https://github.com/ktzioumis/Kings-County-Housing-Prices/blob/master/Kings.ipynb
 
 <img src='osemn.jpg'>
 
